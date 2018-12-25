@@ -3,7 +3,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.util.Scanner;
-import java.util.TreeMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -71,13 +70,13 @@ public class cleanser {
     public static void removeDataBeforeYear(int cutoffYear) {
         //Go through the raw data row by row, checking the year that the entry is for.
         //  If it is prior to 1979, don't print it to the PrintStream of the outputFile.
-        for (String unsplitRow : _rawDataNotCleansed) {            
+        for (int i = 0; i < _rawDataNotCleansed.size(); i++) {            
             try {
                 //Check if the row is for a year after CUTOFF_YEAR and print it to the output file.
                 //  The column with this info is column 2, but this is a program. Index 1 it is.
                 if (Integer.parseInt(_rawDataNotCleansed.get(i).split(FILE_PARSER_REGEX)[1]) > CUTOFF_YEAR) {
                     //The row of data is for a year after CUTOFF_YEAR. We can send it to the output file.
-                    _outputFilePrintStream.println(rawData.get(i));
+                    _outputFilePrintStream.println(_rawDataNotCleansed.get(i));
                 }
             } catch (Exception e) {
                 //Do nothing.
