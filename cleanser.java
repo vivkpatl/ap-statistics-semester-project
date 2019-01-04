@@ -10,16 +10,16 @@ import java.util.HashMap;
 public class cleanser {
 
     //The location of the input file relative to the current file of code.
-    final static String INPUT_FILE_LOCATION_RELATIVE = "dataset_CLEANSED_BY_YEAR.txt";
+    final static String INPUT_FILE_LOCATION_RELATIVE = "canigetatry2/dataset_cleanse2.txt";
 
     //The location of the output file relative to the current file of code.
-    final static String OUTPUT_FILE_LOCATION_RELATIVE = "dataset_CLEANSED_BY_YEAR_AND_LATEST_SEASON.txt";
+    final static String OUTPUT_FILE_LOCATION_RELATIVE = "canigetatry2/dataset_cleanse3.csv";
     
     //The regex nightmare used to split the rows of the dataset into useful pieces of information.
     final static String FILE_PARSER_REGEX = ",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)";
 
     //The year from which the data we will use will be collected. Helps to avoid unnecessary lookups.
-    final static int CUTOFF_YEAR = 1979;
+    final static int CUTOFF_YEAR = 2010;
 
     //The statistic that we really care about. Refers to the quantitative columns in the dataset.
     final static String STAT_OF_INTEREST = "PER";
@@ -54,10 +54,13 @@ public class cleanser {
             _rawDataNotCleansed.add(_inputFileScanner.nextLine());
         }
 
+        //for (String s : _rawDataNotCleansed)
+        //    _outputFilePrintStream.println(s);
+
         //Call the method of choice here after setting the constants above.
         //removeDataBeforeYear(CUTOFF_YEAR);
-        //cleanseForRelevantInfo();
-        isolateLatestSeason();
+        //isolateLatestSeason();
+        cleanseForRelevantInfo();
 
         //Avoid memory leaks.
         _inputFileScanner.close();
@@ -74,7 +77,7 @@ public class cleanser {
             try {
                 //Check if the row is for a year after CUTOFF_YEAR and print it to the output file.
                 //  The column with this info is column 2, but this is a program. Index 1 it is.
-                if (Integer.parseInt(_rawDataNotCleansed.get(i).split(FILE_PARSER_REGEX)[1]) > CUTOFF_YEAR) {
+                if (Integer.parseInt(_rawDataNotCleansed.get(i).split(FILE_PARSER_REGEX)[1]) >= CUTOFF_YEAR) {
                     //The row of data is for a year after CUTOFF_YEAR. We can send it to the output file.
                     _outputFilePrintStream.println(_rawDataNotCleansed.get(i));
                 }
@@ -130,12 +133,12 @@ public class cleanser {
     }
 
     //--------------------------------------------------------------
-    //Isolate a dataset that contains only ages, position, and PER.
+    //Isolate a dataset that contains only age, PER, position, name.
     //--------------------------------------------------------------
     //In this method, we extract the relevant info from the raw data
     //  and store it in an output file, separated by commas.
     //--------------------------------------------------------------
-    //Relevant indices (1: Year, 3: Position, 4: Age, Season PER: 9)
+    //Relevant indices (1: Year, 2: Name, 3: Position, 4: Age, Season PER: 9)
     //--------------------------------------------------------------
     public static void cleanseForRelevantInfo() {
         //Currently, the raw data has a lot of unnecessary info.
@@ -148,7 +151,10 @@ public class cleanser {
             String preferredPosition = splitRow[3].split("-")[0];
 
             //Combine the info we need and place the row in the output file.
-            _outputFilePrintStream.println(splitRow[4] + "," + splitRow[9] + "," + preferredPosition);
+            
+            //Points scored predicted by minutes played
+            //_outputFilePrintStream.println(splitRow[8] + "," + splitRow[splitRow.length - 1] + "," + preferredPosition + "," + splitRow[2]);
+            _outputFilePrintStream.println(splitRow[1] + "," + splitRow[9] + "," + preferredPosition + "," + splitRow[2]);
         }
     }
 }
