@@ -10,16 +10,16 @@ import java.util.HashMap;
 public class cleanser {
 
     //The location of the input file relative to the current file of code.
-    final static String INPUT_FILE_LOCATION_RELATIVE = "canigetatry2/dataset_cleanse2.txt";
+    final static String INPUT_FILE_LOCATION_RELATIVE = "canigetatry2/dataset_cleanse3.txt";
 
     //The location of the output file relative to the current file of code.
-    final static String OUTPUT_FILE_LOCATION_RELATIVE = "canigetatry2/dataset_cleanse3.csv";
+    final static String OUTPUT_FILE_LOCATION_RELATIVE = "NaN.txt";
     
     //The regex nightmare used to split the rows of the dataset into useful pieces of information.
     final static String FILE_PARSER_REGEX = ",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)";
 
     //The year from which the data we will use will be collected. Helps to avoid unnecessary lookups.
-    final static int CUTOFF_YEAR = 2010;
+    final static int CUTOFF_YEAR = 1980;
 
     //The statistic that we really care about. Refers to the quantitative columns in the dataset.
     final static String STAT_OF_INTEREST = "PER";
@@ -36,10 +36,20 @@ public class cleanser {
     //Reference to the output file.
     static PrintStream _outputFilePrintStream;
 
+    //The location of the output file relative to the current file of code.
+    static ArrayList<PrintStream> BY_DECADE_FPATHS;
+
+
+
     //--------------------------------------------------------------
     //As the method name implies, this is the main method.
     //--------------------------------------------------------------
     public static void main(String[] args) throws FileNotFoundException {
+        BY_DECADE_FPATHS = new ArrayList<PrintStream>();
+        BY_DECADE_FPATHS.add(new PrintStream(new File("canigetatry2/final/dataset_1980s.csv")));
+        BY_DECADE_FPATHS.add(new PrintStream(new File("canigetatry2/final/dataset_1990s.csv")));
+        BY_DECADE_FPATHS.add(new PrintStream(new File("canigetatry2/final/dataset_2000s.csv")));
+        BY_DECADE_FPATHS.add(new PrintStream(new File("canigetatry2/final/dataset_2010s.csv")));
         //Create the scanner with the input file location.
         _inputFileScanner = new Scanner(new File(INPUT_FILE_LOCATION_RELATIVE));
         
@@ -60,11 +70,16 @@ public class cleanser {
         //Call the method of choice here after setting the constants above.
         //removeDataBeforeYear(CUTOFF_YEAR);
         //isolateLatestSeason();
-        cleanseForRelevantInfo();
+        //cleanseForRelevantInfo();
+        groupIntoDecades();
 
         //Avoid memory leaks.
         _inputFileScanner.close();
         _outputFilePrintStream.close();
+
+        for (PrintStream pStream : BY_DECADE_FPATHS) {
+            pStream.close();
+        }
     }
 
     //--------------------------------------------------------------
@@ -155,6 +170,30 @@ public class cleanser {
             //Points scored predicted by minutes played
             //_outputFilePrintStream.println(splitRow[8] + "," + splitRow[splitRow.length - 1] + "," + preferredPosition + "," + splitRow[2]);
             _outputFilePrintStream.println(splitRow[1] + "," + splitRow[9] + "," + preferredPosition + "," + splitRow[2]);
+        }
+    }
+
+    //--------------------------------------------------------------
+    //Group the latest seasons into each decade since the 1980s
+    //--------------------------------------------------------------
+    public static void groupIntoDecades() {
+        //Don't use the typical indices for this one, as the input for this has condensed rows
+        for (String unsplitRow : _rawDataNotCleansed) {
+            //Get the components
+            String[] splitRow = unsplitRow.split(FILE_PARSER_REGEX);
+
+            //Determine the year, and place it into the proper file
+            int seasonYear = Integer.parseInt(splitRow[0]);
+
+            if (seasonYear < 1990) { //1980s
+                BY_DECADE_FPATHS.get(0).println(unsplitRow);
+            } else if (1990 <= seasonYear && seasonYear <= 1999) { //1990s
+                BY_DECADE_FPATHS.get(1).println(unsplitRow);
+            } else if (2000 <= seasonYear && seasonYear <= 2009) { //2000s
+                BY_DECADE_FPATHS.get(2).println(unsplitRow);
+            } else { //2010s
+                BY_DECADE_FPATHS.get(3).println(unsplitRow);
+            }
         }
     }
 }
